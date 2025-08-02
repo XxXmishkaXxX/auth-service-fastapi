@@ -1,0 +1,43 @@
+version: "3.8"
+
+networks:
+  auth:
+
+services:
+  auth_db:
+    image: postgres:15
+    container_name: auth_db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${AUTH_DB_NAME}
+      POSTGRES_USER: ${AUTH_DB_USER}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+    networks:
+      - auth
+
+  auth_service:
+    build:
+      context: ./services/auth_service
+    container_name: auth_service
+    restart: always
+    env_file:
+      - ./services/auth_service/.env
+    depends_on:
+      - auth_db
+      - kafka
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./services/auth_service:/auth_service
+    entrypoint: ["/auth_service/entrypoint.sh"]
+    networks:
+      - auth
+
+volumes:
+  auth_postgres_data:
