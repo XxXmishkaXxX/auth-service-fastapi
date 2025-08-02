@@ -14,4 +14,4 @@ ENV PYTHONPATH=/auth_service:$PYTHONPATH
 
 RUN chmod +x /auth_service/entrypoint.sh
 
-CMD ["/auth_service/entrypoint.sh"]
+ENTRYPOINT ["/auth_service/entrypoint.sh"]
