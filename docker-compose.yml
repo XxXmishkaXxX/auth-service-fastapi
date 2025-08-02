@@ -23,19 +23,18 @@ services:
 
   auth_service:
     build:
-      context: ./services/auth_service
+      context: .
     container_name: auth_service
     restart: always
     env_file:
-      - ./services/auth_service/.env
+      - .env
     depends_on:
       - auth_db
-      - kafka
     ports:
       - "8001:8001"
     volumes:
-      - ./services/auth_service:/auth_service
-    entrypoint: ["/auth_service/entrypoint.sh"]
+      - ./:/auth_service
+    entrypoint: ["./entrypoint.sh"]
     networks:
       - auth
 
