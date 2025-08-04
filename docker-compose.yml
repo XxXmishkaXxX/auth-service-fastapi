@@ -8,12 +8,10 @@ services:
     image: postgres:15
     container_name: auth_db
     restart: always
-    env_file:
-      - .env
     environment:
-      POSTGRES_DB: ${AUTH_DB_NAME}
-      POSTGRES_USER: ${AUTH_DB_USER}
-      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Hunuec383jdKKKfdsm
     ports:
       - "5433:5432"
     volumes:
