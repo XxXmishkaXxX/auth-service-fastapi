@@ -6,8 +6,9 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-from app.core.config import settings
-from app.core.db import Base
+from core.config import settings
+from core.db import Base
+
 
 config = context.config
 
@@ -54,6 +55,7 @@ def do_run_migrations(connection: Connection) -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+from models.user import User
 
 async def run_async_migrations() -> None:
     """In this scenario we need to create an Engine
