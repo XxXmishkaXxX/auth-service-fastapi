@@ -9,8 +9,7 @@ RUN pip install --upgrade -r ./requirements.txt
 
 COPY . /auth_service
 
-ENV PYTHONPATH=/app
-ENV PYTHONPATH=/auth_service:$PYTHONPATH
+ENV PYTHONPATH=/auth_service/app
 
 RUN chmod +x /auth_service/entrypoint.sh
 

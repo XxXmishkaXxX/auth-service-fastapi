@@ -19,6 +19,15 @@ services:
     networks:
       - auth
 
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6378:6379"
+    networks:
+      - auth
+
   auth_service:
     build:
       context: .
