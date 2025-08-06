@@ -9,11 +9,13 @@ wait_for_service() {
   until nc -z -v -w30 "$host" "$port"
   do
     echo "$name ($host:$port) пока недоступен, ждем..."
-    sleep 10
+    sleep 5
   done
 }
 
 wait_for_service "PostgreSQL" "auth_db" 5432
+
+cd app
 
 if [ -z "$(ls -A migrations/versions/ 2>/dev/null)" ]; then
   echo "Миграции не найдены, создаем первую миграцию..."
@@ -21,5 +23,7 @@ if [ -z "$(ls -A migrations/versions/ 2>/dev/null)" ]; then
 fi
 
 alembic upgrade head
+
+cd ..
 
 exec uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
