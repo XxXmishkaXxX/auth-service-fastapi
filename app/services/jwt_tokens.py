@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
-from jose import jwt
+from jose import jwt, JWTError, ExpiredSignatureError
 from uuid import UUID
+from fastapi import HTTPException, status
 from app.core.config import settings
 
 
@@ -10,7 +11,6 @@ class JWTService:
         self.algorithm = algorithm
 
     async def create_tokens(self, user_id: UUID) -> dict:
-        """Создание access и refresh токенов."""
         access_token = self._create_token({"sub": str(user_id), "type": "access"}, expires_minutes=15)
         refresh_token = self._create_token({"sub": str(user_id), "type": "refresh"}, expires_days=30)
 
@@ -20,8 +20,13 @@ class JWTService:
             "token_type": "bearer"
         }
 
+    async def create_access_token(self, user_id: UUID) -> str:
+        return self._create_token(
+            data={"sub": str(user_id), "type": "access"},
+            expires_minutes=15
+        )
+
     def _create_token(self, data: dict, expires_minutes: int = None, expires_days: int = None) -> str:
-        """Вспомогательный метод для создания токена."""
         to_encode = data.copy()
 
         if expires_minutes:
@@ -35,8 +40,20 @@ class JWTService:
         return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
 
     async def decode_token(self, token: str) -> dict:
-        """Декодирование токена."""
-        return jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+        try:
+            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            return payload
+        except ExpiredSignatureError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has expired"
+            )
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials"
+            )
+
 
 
 jwt_service = JWTService()
