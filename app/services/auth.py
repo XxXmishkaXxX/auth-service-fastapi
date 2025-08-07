@@ -43,7 +43,7 @@ class AuthService:
         if user and pwd_context.verify(data.password, user.password_hash):
             return auth_schemas.LoginResponse(success=True, user_id=UUID(str(user.id)))
         
-        return HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email or password is incorrect")
 
@@ -78,3 +78,12 @@ class AuthService:
         await self.blacklist_repo.add(refresh_token, datetime.fromtimestamp(refresh_exp))
 
         return auth_schemas.LogoutResponse(success=True)
+    
+    async def is_token_blacklisted(self, token: str):
+        is_blacklisted = await self.blacklist_repo.is_blacklisted(token)
+        if is_blacklisted:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has been revoked or is blacklisted"
+            )
+        
